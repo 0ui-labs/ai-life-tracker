@@ -546,17 +546,19 @@ Klare, strukturierte Eingaben nutzen mit Zahlen und Übungsnamen.
 
 ---
 
-### 2. Workout-Kontext nur im Speicher
+### 2. Workout-Kontext mit Redis-Persistierung
 
-**Problem:**  
-Der Workout-Kontext (aktive Session, aktuelle Übung, letztes Gewicht) wird nur im RAM gehalten, nicht in der Datenbank.
+**Lösung:**  
+Der Workout-Kontext (aktive Session, aktuelle Übung, letztes Gewicht) wird in Redis gespeichert mit einem konfigurierbaren TTL (Time-To-Live).
 
-**Auswirkung:**  
-Wenn der Server neustartet, geht die aktive Workout-Session verloren.
+**Verhalten:**  
+- Sessions werden automatisch nach Ablauf des TTL gelöscht (Standard: 2 Stunden)
+- Bei Server-Neustarts bleibt der Kontext erhalten, solange Redis läuft
+- Jeder User hat seinen eigenen isolierten Kontext
 
-**Für wen relevant?**
-- Lokale Entwicklung: Kein Problem
-- Produktion: Sollte in DB persistiert werden
+**Einschränkungen:**
+- Ohne laufende Redis-Instanz funktioniert die Kontextpersistierung nicht
+- Nach TTL-Ablauf muss eine neue Workout-Session gestartet werden
 
 ---
 
