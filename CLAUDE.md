@@ -13,6 +13,7 @@ Full-Stack Life Tracker mit AI-Chat-Interface:
 #### 1. Vor dem Implementieren
 - [ ] Verstehe die Anforderung vollständig
 - [ ] Identifiziere betroffene Dateien und deren Abhängigkeiten
+- [ ] **Nutze `ref` MCP um Best Practices und aktuelle Dokumentation zu prüfen**
 - [ ] Plane die Testfälle BEVOR du Code schreibst (TDD)
 
 #### 2. Test-First Ansatz
@@ -39,6 +40,12 @@ cd frontend && pnpm typecheck && pnpm lint
 - [ ] Keine Type-Errors
 - [ ] Keine Lint-Errors
 - [ ] Code Review der eigenen Änderungen
+
+#### 5. Nach Abschluss des Tasks
+- [ ] **IMMER `HANDOVER.md` aktualisieren** mit:
+  - Was wurde implementiert/geändert
+  - Offene Punkte oder bekannte Issues
+  - Nächste Schritte für den nächsten Entwickler
 
 ---
 
@@ -125,6 +132,18 @@ pnpm lint
 
 ---
 
+## Wichtige Dateien
+
+| Datei | Beschreibung |
+|-------|--------------|
+| `backend/app/services/entry.py` | Entry & Tracker Business Logic |
+| `backend/app/services/context.py` | Workout Context Management |
+| `backend/app/services/ai.py` | Gemini AI Integration |
+| `backend/app/auth.py` | Clerk Authentication |
+| `TESTING_GUIDELINES.md` | Vollständige Test-Richtlinien |
+
+---
+
 ## Workflow für neue Features
 
 ### 1. Feature verstehen
@@ -159,21 +178,42 @@ def test_feature_gibt_fehler_bei_ungültigem_input():
 - Tests müssen weiterhin grün bleiben
 
 ### 5. Integration prüfen
-- Manuelle Tests im Browser/API
+- **E2E Tests mit `chrome-devtools` MCP** (Browser-Verifikation)
 - Alle Tests ausführen
 - Type Check + Lint
 
 ---
 
-## Wichtige Dateien
+## MCP Server Nutzung
 
-| Datei | Beschreibung |
-|-------|--------------|
-| `backend/app/services/entry.py` | Entry & Tracker Business Logic |
-| `backend/app/services/context.py` | Workout Context Management |
-| `backend/app/services/ai.py` | Gemini AI Integration |
-| `backend/app/auth.py` | Clerk Authentication |
-| `TESTING_GUIDELINES.md` | Vollständige Test-Richtlinien |
+### `ref` - Dokumentation & Best Practices
+**IMMER nutzen vor der Implementierung** um sicherzustellen, dass der Lösungsansatz aktuell und korrekt ist.
+
+```
+Use ref to look up [Thema/Library/API]
+Use ref to verify best practices for [Implementierung]
+```
+
+Beispiele:
+- `Use ref to look up FastAPI dependency injection patterns`
+- `Use ref to verify React Query mutation best practices`
+- `Use ref to check SQLAlchemy 2.0 async session handling`
+
+### `chrome-devtools` - E2E Testing & Debugging
+**Nutzen für Browser-Verifikation** nach Frontend-Änderungen.
+
+```
+Check if localhost:5173 loads correctly
+Verify the form submission on localhost:5173/trackers
+Check the LCP of localhost:5173
+```
+
+Verfügbare Funktionen:
+- **Performance-Traces:** LCP, Ladezeiten analysieren
+- **Netzwerk-Analyse:** CORS-Probleme, fehlgeschlagene Requests
+- **Konsolen-Logs:** JavaScript-Fehler identifizieren
+- **DOM/CSS Inspektion:** Layout-Probleme debuggen
+- **User-Flows:** Formulare testen, Navigation prüfen
 
 ---
 
@@ -185,3 +225,4 @@ def test_feature_gibt_fehler_bei_ungültigem_input():
 - **Keine globalen Variablen in Tests**
 - **Keine Tests die von Reihenfolge abhängen**
 - **Keine print() Statements im Code lassen**
+- **Keine Implementierung ohne `ref` MCP Recherche bei unklaren Best Practices**
