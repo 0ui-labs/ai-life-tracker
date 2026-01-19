@@ -20,6 +20,7 @@ Ein **universeller AI Life Tracker** mit Voice-First Interface. Der User spricht
 - **Datenbank**: PostgreSQL mit allen Tabellen (Migration angewendet)
 - **UI**: Chat-Interface mit Voice Input + Text Input auf Homepage
 - **Generative UI**: Confirmation, StatCard, List Components werden von AI gewählt
+- **PWA**: Installierbar auf Desktop & Mobile, Service Worker aktiv
 
 ### Projektstruktur (aktuell):
 ```
@@ -27,12 +28,15 @@ ai-life-tracker/
 ├── frontend/
 │   ├── src/
 │   │   ├── routes/
-│   │   │   ├── __root.tsx
-│   │   │   └── index.tsx          # Chat UI mit Voice + Text
+│   │   │   ├── __root.tsx          # Root mit ErrorBoundary
+│   │   │   └── index.tsx           # Chat UI mit Voice + Text
 │   │   ├── components/
 │   │   │   ├── ui/
-│   │   │   │   ├── button.tsx     # shadcn Button
-│   │   │   │   └── card.tsx       # shadcn Card
+│   │   │   │   ├── button.tsx      # shadcn Button
+│   │   │   │   └── card.tsx        # shadcn Card
+│   │   │   ├── error/
+│   │   │   │   ├── ErrorBoundary.tsx       # Error Boundary Component
+│   │   │   │   └── ErrorBoundary.test.tsx  # 7 Unit Tests
 │   │   │   ├── generative/
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── Confirmation.tsx
@@ -42,16 +46,24 @@ ai-life-tracker/
 │   │   │   └── voice/
 │   │   │       └── VoiceButton.tsx
 │   │   ├── hooks/
-│   │   │   └── useVoice.ts        # Web Speech API
+│   │   │   └── useVoice.ts         # Web Speech API
 │   │   ├── lib/
-│   │   │   └── utils.ts           # cn() helper
+│   │   │   └── utils.ts            # cn() helper
 │   │   ├── stores/
 │   │   │   └── workoutStore.ts
 │   │   ├── api/
 │   │   │   └── client.ts
-│   │   └── index.css              # Tailwind v4 + Theme
+│   │   └── index.css               # Tailwind v4 + Theme
+│   │   └── test/
+│   │       ├── setup.ts            # Test Setup
+│   │       └── pwa.test.ts         # PWA Tests
+│   ├── public/
+│   │   ├── manifest.webmanifest    # PWA Manifest
+│   │   ├── pwa-192x192.png         # PWA Icon
+│   │   └── pwa-512x512.png         # PWA Icon
 │   ├── biome.json
-│   ├── vite.config.ts
+│   ├── vite.config.ts              # inkl. VitePWA Plugin
+│   ├── vitest.config.ts            # Test-Konfiguration
 │   └── package.json
 │
 ├── backend/
@@ -99,6 +111,8 @@ ai-life-tracker/
 - **shadcn/ui** - Button, Card (manuell für Tailwind v4 konfiguriert)
 - **Biome** - Linting + Formatting
 - **lucide-react** - Icons
+- **vite-plugin-pwa** - PWA Support (Service Worker, Manifest)
+- **Vitest** - Unit Testing
 
 ### Backend
 - **FastAPI** - Python API
@@ -211,13 +225,22 @@ scheduled_events
   - Routine-Service mit CRUD-Operationen
   - AI erkennt Routine-Befehle und speichert automatisch
   - RoutineCard Component für Anzeige im Chat
-- [ ] PWA Setup (vite-plugin-pwa)
+- [x] PWA Setup (vite-plugin-pwa) - Komplett implementiert!
+  - App installierbar auf Desktop und Mobile
+  - Service Worker mit Precaching
+  - Web App Manifest konfiguriert
 
 ### Priorität 3 (Nice to have):
 - [x] Backend Tests - 68 Tests für Services implementiert
-- [ ] Frontend Tests (Vitest + Playwright)
-- [ ] Error Boundaries
-- [ ] Offline Support
+- [x] Frontend Tests (Vitest) - Test-Framework eingerichtet, 17 Tests (10 PWA + 7 ErrorBoundary)
+- [x] Error Boundaries - Komplett implementiert mit TDD!
+  - ErrorBoundary Component fängt React-Render-Fehler ab
+  - Zeigt benutzerfreundliche Fehlerseite mit Retry-Button
+  - Unterstützt custom Fallback UI
+  - onError Callback für Logging/Monitoring
+  - 7 Unit Tests mit 100% Coverage
+- [ ] Frontend E2E Tests (Playwright)
+- [ ] Offline Support (PWA Grundlage vorhanden)
 
 ---
 
@@ -285,6 +308,16 @@ VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
 - Components: `Confirmation`, `StatCard`, `List`
 - AI returned `component: "confirmation"` → Frontend rendert `<Confirmation />`
 
+### Error Handling (`frontend/src/components/error/`)
+- `ErrorBoundary.tsx` - React Error Boundary als Class Component
+- Fängt Fehler in Child-Komponenten ab und zeigt Fallback UI
+- Integriert in `__root.tsx` - wraps die gesamte App
+- Features:
+  - Benutzerfreundliche Fehleranzeige (deutsch)
+  - "Erneut versuchen" Button zum Reset
+  - Custom Fallback Support via `fallback` Prop
+  - `onError` Callback für Error-Logging
+
 ---
 
 ## Befehle Referenz
@@ -292,9 +325,12 @@ VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
 ```bash
 # Frontend
 pnpm dev          # Dev Server (http://localhost:5173)
-pnpm build        # Production Build
+pnpm build        # Production Build (inkl. PWA)
 pnpm lint         # Biome Check
 pnpm lint:fix     # Biome Fix
+pnpm test         # Vitest Tests ausführen
+pnpm test:watch   # Vitest im Watch-Modus
+pnpm typecheck    # TypeScript Check
 
 # Backend
 uv sync           # Dependencies installieren
@@ -324,3 +360,25 @@ docker-compose logs -f    # Logs
 | **V6** | Premium, Wearables |
 
 Vollständige Roadmap: `ROADMAP.md`
+
+---
+
+## Nächste Schritte
+
+### Empfohlene Reihenfolge:
+
+1. **Frontend E2E Tests (Playwright)** - Sichert kritische User Flows ab
+   - Login/Logout Flow
+   - Chat-Interaktion mit AI
+   - Tracker erstellen und Entries hinzufügen
+   - Voice Input testen (soweit möglich)
+
+2. **Offline Support** - PWA-Grundlage ist bereits vorhanden
+   - Service Worker für API-Caching erweitern
+   - Offline-Queue für Chat-Nachrichten
+   - Sync bei Reconnect
+
+### Warum diese Reihenfolge?
+- E2E Tests geben Vertrauen für größere Refactorings
+- Offline Support baut auf stabilem, getesteten Code auf
+- Beide Features sind "Nice to have" für V1 MVP

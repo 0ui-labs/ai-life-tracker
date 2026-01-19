@@ -28,7 +28,7 @@ async def chat(
     user_id = user.id
 
     # Get current context
-    context = context_engine.get_context(user_id)
+    context = await context_engine.get_context(user_id)
 
     # Add active routine to context
     active_routine = await get_active_routine(db, user_id)
@@ -75,7 +75,7 @@ async def chat(
             weight = data.get("weight", context.get("last_weight"))
             reps = data.get("reps", 0)
             if weight and reps:
-                context_engine.record_set(user_id, weight, reps)
+                await context_engine.record_set(user_id, weight, reps)
 
     # Handle routine creation
     elif action == "create_routine":
@@ -155,7 +155,7 @@ async def chat(
 async def start_workout(user: CurrentUser, routine_name: str | None = None):
     """Start a workout session."""
     user_id = user.id
-    context_engine.start_workout(user_id, routine_name)
+    await context_engine.start_workout(user_id, routine_name)
     return {"status": "started", "routine": routine_name}
 
 
@@ -166,7 +166,7 @@ async def end_workout(
 ):
     """End the current workout session and save summary."""
     user_id = user.id
-    summary = context_engine.end_workout(user_id)
+    summary = await context_engine.end_workout(user_id)
 
     # TODO: Could save workout session summary here
 
@@ -177,7 +177,7 @@ async def end_workout(
 async def get_context(user: CurrentUser):
     """Get current context for debugging."""
     user_id = user.id
-    return context_engine.get_context(user_id)
+    return await context_engine.get_context(user_id)
 
 
 @router.get("/history")

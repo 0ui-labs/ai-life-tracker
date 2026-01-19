@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Generator
 from unittest.mock import MagicMock, AsyncMock
 
-import fakeredis
+import fakeredis.aioredis
 
 from app.services.context import ContextEngine
 
@@ -15,14 +15,14 @@ from app.services.context import ContextEngine
 # =============================================================================
 
 @pytest.fixture
-def fake_redis() -> fakeredis.FakeRedis:
-    """Fresh FakeRedis instance for each test."""
-    return fakeredis.FakeRedis(decode_responses=True)
+def fake_redis() -> fakeredis.aioredis.FakeRedis:
+    """Fresh async FakeRedis instance for each test."""
+    return fakeredis.aioredis.FakeRedis(decode_responses=True)
 
 
 @pytest.fixture
-def context_engine(fake_redis: fakeredis.FakeRedis) -> ContextEngine:
-    """Fresh ContextEngine instance with FakeRedis for each test."""
+def context_engine(fake_redis: fakeredis.aioredis.FakeRedis) -> ContextEngine:
+    """Fresh ContextEngine instance with async FakeRedis for each test."""
     return ContextEngine(redis_client=fake_redis)
 
 
@@ -33,9 +33,9 @@ def user_id() -> str:
 
 
 @pytest.fixture
-def user_with_active_workout(context_engine: ContextEngine, user_id: str) -> str:
+async def user_with_active_workout(context_engine: ContextEngine, user_id: str) -> str:
     """User ID with an active workout session started."""
-    context_engine.start_workout(
+    await context_engine.start_workout(
         user_id=user_id,
         routine_name="Test Workout",
         exercises=[

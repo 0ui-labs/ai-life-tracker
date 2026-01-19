@@ -49,8 +49,8 @@ def _extract_clerk_frontend_api(publishable_key: str) -> str:
     encoded_part = match.group(2)
 
     try:
-        # Add padding if necessary
-        padded = encoded_part + "=" * (4 - len(encoded_part) % 4)
+        # Add padding if necessary (only adds missing characters, 0 if already correct)
+        padded = encoded_part + "=" * ((-len(encoded_part)) % 4)
         decoded = base64.b64decode(padded).decode("utf-8")
         # Remove trailing $ if present
         frontend_api = decoded.rstrip("$")
