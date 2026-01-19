@@ -6,8 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json", "**/*.css"],
-    "experimentalScannerIgnores": ["**/routeTree.gen.ts"]
+    "includes": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json", "!**/routeTree.gen.ts"]
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
