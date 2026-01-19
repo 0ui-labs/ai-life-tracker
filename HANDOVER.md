@@ -205,7 +205,7 @@ scheduled_events
 - [x] **Clerk Auth integrieren** - Komplett implementiert!
 
 ### Priorität 2 (V1 Features):
-- [ ] Tracker CRUD im Frontend
+- [x] Tracker CRUD im Frontend - Komplett implementiert!
 - [x] Entries in DB speichern - Implementiert!
 - [ ] Routine Management UI
 - [ ] PWA Setup (vite-plugin-pwa)
