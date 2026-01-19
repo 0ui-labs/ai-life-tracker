@@ -49,6 +49,9 @@ export function useVoice(): UseVoiceReturn {
       return
     }
 
+    // Clear transcript when starting a new session
+    setTranscript("")
+
     const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition
     const recognition = new SpeechRecognitionClass()
 
@@ -69,6 +72,7 @@ export function useVoice(): UseVoiceReturn {
 
     recognition.onerror = (event) => {
       setError(event.error)
+      setTranscript("")
       setIsListening(false)
     }
 

@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { Loader2, Send } from "lucide-react"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { List, Loader2, Send } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { apiClient } from "@/api/client"
 import { AuthUserButton } from "@/components/auth/AuthGuard"
@@ -43,6 +43,8 @@ function HomePage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [])
 
+  // Scroll to bottom when messages change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we want to scroll on messages change
   useEffect(() => {
     scrollToBottom()
   }, [messages, scrollToBottom])
@@ -106,6 +108,12 @@ function HomePage() {
       <header className="flex items-center justify-between border-b border-border px-4 py-3">
         <h1 className="text-lg font-semibold">AI Life Tracker</h1>
         <div className="flex items-center gap-3">
+          <Link to="/trackers">
+            <Button variant="ghost" size="sm">
+              <List className="mr-1 h-4 w-4" />
+              Tracker
+            </Button>
+          </Link>
           <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-xs text-green-500">
             Online
           </span>

@@ -1,10 +1,4 @@
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-  useAuth,
-} from "@clerk/clerk-react"
+import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from "@clerk/clerk-react"
 import { useEffect } from "react"
 import { setTokenGetter } from "@/api/client"
 
@@ -26,9 +20,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         <div className="flex h-screen flex-col items-center justify-center gap-6 bg-background">
           <div className="text-center">
             <h1 className="text-3xl font-bold">AI Life Tracker</h1>
-            <p className="mt-2 text-muted-foreground">
-              Voice-first AI-powered life tracking
-            </p>
+            <p className="mt-2 text-muted-foreground">Voice-first AI-powered life tracking</p>
           </div>
           <SignInButton mode="modal">
             <button

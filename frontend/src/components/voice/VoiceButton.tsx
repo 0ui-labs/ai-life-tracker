@@ -1,4 +1,5 @@
 import { Loader2, Mic, MicOff } from "lucide-react"
+import { useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { useVoice } from "@/hooks/useVoice"
 import { cn } from "@/lib/utils"
@@ -17,14 +18,18 @@ export function VoiceButton({
   size = "default",
 }: VoiceButtonProps) {
   const { isListening, transcript, error, startListening, stopListening } = useVoice()
+  const sessionStartedRef = useRef(false)
 
   const handleClick = () => {
     if (isListening) {
       stopListening()
-      if (transcript && onTranscript) {
+      // Only forward transcript if it was captured during this session
+      if (transcript && onTranscript && sessionStartedRef.current) {
         onTranscript(transcript)
       }
+      sessionStartedRef.current = false
     } else {
+      sessionStartedRef.current = true
       startListening()
     }
     onListeningChange?.(!isListening)
