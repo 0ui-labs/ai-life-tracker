@@ -8,6 +8,7 @@ from app.database import get_db
 from app.models import Tracker, Entry
 from app.schemas.tracker import (
     TrackerCreate,
+    TrackerUpdate,
     TrackerResponse,
     EntryCreate,
     EntryResponse,
@@ -55,12 +56,13 @@ async def create_tracker(
 
 @router.get("/{tracker_id}", response_model=TrackerResponse)
 async def get_tracker(
+    user: CurrentUser,
     tracker_id: UUID,
     db: AsyncSession = Depends(get_db),
 ):
     """Get a specific tracker."""
     result = await db.execute(
-        select(Tracker).where(Tracker.id == tracker_id)
+        select(Tracker).where(Tracker.id == tracker_id, Tracker.user_id == user.id)
     )
     tracker = result.scalar_one_or_none()
     if not tracker:
@@ -68,13 +70,80 @@ async def get_tracker(
     return tracker
 
 
+@router.put("/{tracker_id}", response_model=TrackerResponse)
+async def update_tracker(
+    user: CurrentUser,
+    tracker_id: UUID,
+    tracker_update: TrackerUpdate,
+    db: AsyncSession = Depends(get_db),
+):
+    """Update an existing tracker."""
+    # Ensure user exists in DB
+    await get_or_create_user(db, user.id, user.email)
+
+    # Fetch the tracker
+    result = await db.execute(select(Tracker).where(Tracker.id == tracker_id))
+    tracker = result.scalar_one_or_none()
+
+    if not tracker:
+        raise HTTPException(status_code=404, detail="Tracker not found")
+
+    # Check ownership
+    if tracker.user_id != user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this tracker")
+
+    # Update only provided fields
+    update_data = tracker_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(tracker, field, value)
+
+    await db.commit()
+    await db.refresh(tracker)
+    return tracker
+
+
+@router.delete("/{tracker_id}")
+async def delete_tracker(
+    user: CurrentUser,
+    tracker_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a tracker."""
+    # Ensure user exists in DB
+    await get_or_create_user(db, user.id, user.email)
+
+    # Fetch the tracker
+    result = await db.execute(select(Tracker).where(Tracker.id == tracker_id))
+    tracker = result.scalar_one_or_none()
+
+    if not tracker:
+        raise HTTPException(status_code=404, detail="Tracker not found")
+
+    # Check ownership
+    if tracker.user_id != user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this tracker")
+
+    await db.delete(tracker)
+    await db.commit()
+    return {"message": "Tracker deleted successfully"}
+
+
 @router.get("/{tracker_id}/entries", response_model=list[EntryResponse])
 async def list_entries(
+    user: CurrentUser,
     tracker_id: UUID,
     limit: int = 50,
     db: AsyncSession = Depends(get_db),
 ):
     """List entries for a tracker."""
+    # Verify tracker ownership
+    tracker_result = await db.execute(
+        select(Tracker).where(Tracker.id == tracker_id, Tracker.user_id == user.id)
+    )
+    tracker = tracker_result.scalar_one_or_none()
+    if not tracker:
+        raise HTTPException(status_code=404, detail="Tracker not found")
+
     result = await db.execute(
         select(Entry)
         .where(Entry.tracker_id == tracker_id)
@@ -94,10 +163,17 @@ async def create_entry(
     """Create a new entry for a tracker."""
     # Ensure user exists in DB
     await get_or_create_user(db, user.id, user.email)
-    user_id = user.id
-    
+
+    # Verify tracker ownership
+    tracker_result = await db.execute(
+        select(Tracker).where(Tracker.id == tracker_id, Tracker.user_id == user.id)
+    )
+    tracker = tracker_result.scalar_one_or_none()
+    if not tracker:
+        raise HTTPException(status_code=404, detail="Tracker not found")
+
     db_entry = Entry(
-        user_id=user_id,
+        user_id=user.id,
         tracker_id=tracker_id,
         data=entry.data,
         notes=entry.notes,

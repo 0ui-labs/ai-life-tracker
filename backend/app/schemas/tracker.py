@@ -12,6 +12,16 @@ class TrackerCreate(BaseModel):
     color: str | None = None
 
 
+class TrackerUpdate(BaseModel):
+    """Schema for updating a tracker - all fields optional."""
+
+    name: str | None = None
+    category: str | None = None
+    schema: dict[str, Any] | None = None
+    icon: str | None = None
+    color: str | None = None
+
+
 class TrackerResponse(BaseModel):
     id: UUID
     name: str
@@ -26,7 +36,6 @@ class TrackerResponse(BaseModel):
 
 
 class EntryCreate(BaseModel):
-    tracker_id: UUID
     data: dict[str, Any]
     notes: str | None = None
     timestamp: datetime | None = None
