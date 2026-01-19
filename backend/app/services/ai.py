@@ -1,6 +1,7 @@
 import json
 from typing import Any
 import google.generativeai as genai
+from starlette.concurrency import run_in_threadpool
 
 from app.config import settings
 
@@ -69,7 +70,7 @@ class AIService:
         prompt = f"{message}{context_str}"
         
         try:
-            response = self.model.generate_content(prompt)
+            response = await run_in_threadpool(self.model.generate_content, prompt)
             text = response.text
             
             # Try to parse as JSON
