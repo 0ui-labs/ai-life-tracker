@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Generator
 from unittest.mock import MagicMock, AsyncMock
 
+import fakeredis
+
 from app.services.context import ContextEngine
 
 
@@ -13,9 +15,15 @@ from app.services.context import ContextEngine
 # =============================================================================
 
 @pytest.fixture
-def context_engine() -> ContextEngine:
-    """Fresh ContextEngine instance for each test."""
-    return ContextEngine()
+def fake_redis() -> fakeredis.FakeRedis:
+    """Fresh FakeRedis instance for each test."""
+    return fakeredis.FakeRedis(decode_responses=True)
+
+
+@pytest.fixture
+def context_engine(fake_redis: fakeredis.FakeRedis) -> ContextEngine:
+    """Fresh ContextEngine instance with FakeRedis for each test."""
+    return ContextEngine(redis_client=fake_redis)
 
 
 @pytest.fixture
