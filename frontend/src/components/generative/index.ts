@@ -1,4 +1,5 @@
 export { ChatMessage, type ChatMessageData } from "./ChatMessage"
 export { Confirmation } from "./Confirmation"
 export { List } from "./List"
+export { RoutineCard } from "./RoutineCard"
 export { StatCard } from "./StatCard"

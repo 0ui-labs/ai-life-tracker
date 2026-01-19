@@ -2,7 +2,6 @@
 
 from datetime import datetime
 from typing import Any
-from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.entry import Entry
 from app.models.tracker import Tracker
 from app.services.user import get_or_create_user
-
 
 # Default categories for common tracker types
 TRACKER_CATEGORIES = {
@@ -66,10 +64,10 @@ async def get_or_create_tracker(
     category: str | None = None,
 ) -> Tracker:
     """Get existing tracker or create new one."""
-    
+
     # Normalize tracker name
     normalized_name = tracker_name.strip().title()
-    
+
     # Try to find existing tracker
     result = await db.execute(
         select(Tracker).where(
@@ -78,13 +76,13 @@ async def get_or_create_tracker(
         )
     )
     tracker = result.scalar_one_or_none()
-    
+
     if tracker:
         return tracker
-    
+
     # Create new tracker
     tracker_category = category or get_category_for_tracker(tracker_name)
-    
+
     new_tracker = Tracker(
         user_id=user_id,
         name=normalized_name,
@@ -113,13 +111,13 @@ async def save_entry(
     2. Get or create the tracker
     3. Save the entry
     """
-    
+
     # Ensure user exists
     await get_or_create_user(db, user_id, user_email)
-    
+
     # Get or create tracker
     tracker = await get_or_create_tracker(db, user_id, tracker_name)
-    
+
     # Create entry
     entry = Entry(
         user_id=user_id,
@@ -131,7 +129,7 @@ async def save_entry(
     db.add(entry)
     await db.commit()
     await db.refresh(entry)
-    
+
     return entry
 
 
@@ -142,16 +140,16 @@ async def get_recent_entries(
     limit: int = 10,
 ) -> list[Entry]:
     """Get recent entries for a user, optionally filtered by tracker."""
-    
+
     query = select(Entry).where(Entry.user_id == user_id)
-    
+
     if tracker_name:
         # Join with tracker to filter by name
         normalized_name = tracker_name.strip().title()
         query = query.join(Tracker).where(Tracker.name == normalized_name)
-    
+
     query = query.order_by(Entry.timestamp.desc()).limit(limit)
-    
+
     result = await db.execute(query)
     return list(result.scalars().all())
 
@@ -162,12 +160,12 @@ async def get_tracker_stats(
     tracker_name: str,
 ) -> dict[str, Any]:
     """Get statistics for a tracker (last value, count, etc.)."""
-    
+
     entries = await get_recent_entries(db, user_id, tracker_name, limit=100)
-    
+
     if not entries:
         return {"count": 0, "last_entry": None}
-    
+
     return {
         "count": len(entries),
         "last_entry": {

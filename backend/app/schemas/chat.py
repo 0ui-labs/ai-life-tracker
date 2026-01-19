@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from typing import Any
+
+from pydantic import BaseModel
 
 
 class ChatRequest(BaseModel):
@@ -13,3 +14,4 @@ class ChatResponse(BaseModel):
     data: dict[str, Any] | None = None
     component: str | None = None
     tracker: str | None = None
+    routine_id: str | None = None

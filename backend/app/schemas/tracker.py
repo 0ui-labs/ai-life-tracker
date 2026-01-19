@@ -1,7 +1,8 @@
-from pydantic import BaseModel
+from datetime import datetime
 from typing import Any
 from uuid import UUID
-from datetime import datetime
+
+from pydantic import BaseModel
 
 
 class TrackerCreate(BaseModel):

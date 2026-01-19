@@ -207,11 +207,15 @@ scheduled_events
 ### Priorität 2 (V1 Features):
 - [x] Tracker CRUD im Frontend - Komplett implementiert!
 - [x] Entries in DB speichern - Implementiert!
-- [ ] Routine Management UI
+- [x] Routine Management (Chat-basiert) - Implementiert!
+  - Routine-Service mit CRUD-Operationen
+  - AI erkennt Routine-Befehle und speichert automatisch
+  - RoutineCard Component für Anzeige im Chat
 - [ ] PWA Setup (vite-plugin-pwa)
 
 ### Priorität 3 (Nice to have):
-- [ ] Tests (Vitest + Playwright)
+- [x] Backend Tests - 68 Tests für Services implementiert
+- [ ] Frontend Tests (Vitest + Playwright)
 - [ ] Error Boundaries
 - [ ] Offline Support
 

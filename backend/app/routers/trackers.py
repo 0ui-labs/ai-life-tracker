@@ -1,17 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import CurrentUser
 from app.database import get_db
-from app.models import Tracker, Entry
+from app.models import Entry, Tracker
 from app.schemas.tracker import (
-    TrackerCreate,
-    TrackerUpdate,
-    TrackerResponse,
     EntryCreate,
     EntryResponse,
+    TrackerCreate,
+    TrackerResponse,
+    TrackerUpdate,
 )
 from app.services.user import get_or_create_user
 
@@ -22,7 +23,7 @@ router = APIRouter(prefix="/api/trackers", tags=["trackers"])
 async def list_trackers(user: CurrentUser, db: AsyncSession = Depends(get_db)):
     """List all trackers for the current user."""
     user_id = user.id
-    
+
     result = await db.execute(
         select(Tracker).where(Tracker.user_id == user_id)
     )
@@ -39,7 +40,7 @@ async def create_tracker(
     # Ensure user exists in DB
     await get_or_create_user(db, user.id, user.email)
     user_id = user.id
-    
+
     db_tracker = Tracker(
         user_id=user_id,
         name=tracker.name,

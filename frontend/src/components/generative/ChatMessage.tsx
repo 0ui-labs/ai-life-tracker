@@ -2,6 +2,7 @@ import { Bot, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Confirmation } from "./Confirmation"
 import { List } from "./List"
+import { RoutineCard } from "./RoutineCard"
 import { StatCard } from "./StatCard"
 
 function mapListItems(
@@ -22,7 +23,7 @@ function mapListItems(
 export interface ChatMessageData {
   role: "user" | "assistant"
   content: string
-  component?: "confirmation" | "stat-card" | "list" | null
+  component?: "confirmation" | "stat-card" | "list" | "routine-card" | null
   data?: Record<string, unknown>
 }
 
@@ -77,6 +78,18 @@ export function ChatMessage({ message, className }: ChatMessageProps) {
                 items={mapListItems(message.data?.items)}
               />
             ) : null}
+            {message.component === "routine-card" && message.data && (
+              <RoutineCard
+                name={String(message.data.name ?? "Routine")}
+                schedule={message.data.schedule ? String(message.data.schedule) : undefined}
+                days={
+                  Array.isArray(message.data.days)
+                    ? (message.data.days as Array<{ day: string; name: string }>)
+                    : undefined
+                }
+                isActive={Boolean(message.data.is_active)}
+              />
+            )}
           </div>
         )}
       </div>
